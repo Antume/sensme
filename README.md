@@ -125,13 +125,15 @@ make STATIC=1   # 单文件,不依赖系统库
 三个平台的包是 CI 编的，脚本在 `scripts/` 里，本地也能跑：
 
 ```sh
-# 静态 Linux 版,在 Docker / Podman 里
+# 静态 x86_64 版，在 Docker / Podman 里跑
 docker run --rm -v "$PWD:/src:ro" -v "$PWD/dist:/out" \
-  alpine:3.20 sh /src/scripts/build-musl.sh native x86_64 /out
-docker run --rm -v "$PWD:/src:ro" -v "$PWD/dist:/out" \
-  alpine:3.20 sh /src/scripts/build-musl.sh aarch64-linux-musl aarch64 /out
+  alpine:3.20 sh /src/scripts/build-musl.sh x86_64 /out
 
-# Windows 版,在 Debian / Ubuntu / WSL 上,先装 mingw-w64
+# 静态 arm64 版（Android 也用这个），用 Zig 自带的 musl 交叉编译
+# 需要 pkg-config、xz、bzip2
+sh scripts/build-linux-aarch64.sh dist
+
+# Windows 版，先装 mingw-w64
 sh scripts/build-windows.sh dist
 ```
 

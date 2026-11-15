@@ -8,6 +8,7 @@
 set -e
 
 OUTDIR=${1:-dist}
+OUTDIR=$(mkdir -p "$OUTDIR" && cd "$OUTDIR" && pwd)
 MPG_VER=1.32.10
 CROSS=x86_64-w64-mingw32
 CC="${CROSS}-gcc"
