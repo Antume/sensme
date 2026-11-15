@@ -1251,7 +1251,12 @@ static int run(int argc, char **argv)
     int dry_run = 0, quiet = 0, force = 0, include_out = 0, dump = 0, reorg = 0;
     char isrc[PATH_MAX] = "", iout[PATH_MAX] = "";
 
-    for (int i = 1; i < argc; i++) {
+    /* Termux on Android 10+ runs binaries via /system/bin/linker64 and
+       repeats the executable path as the first argument. */
+    int first = 1;
+    while (first < argc && !strcmp(argv[first], argv[0])) first++;
+
+    for (int i = first; i < argc; i++) {
         const char *a = argv[i];
         if (!strcmp(a, "-h") || !strcmp(a, "--help")) { usage(argv[0]); return 0; }
         else if (!strcmp(a, "-V") || !strcmp(a, "--version")) {
@@ -1290,7 +1295,7 @@ static int run(int argc, char **argv)
     }
 
     /* no arguments on a terminal: ask for the folders instead of failing */
-    if (argc == 1 && isatty(STDIN_FILENO)) {
+    if (first == argc && isatty(STDIN_FILENO)) {
         if (!is_dir(def_src)) snprintf(def_src, sizeof def_src, "%s", home);
         if (interactive_setup(isrc, sizeof isrc, iout, sizeof iout, def_src))
             return 0;
