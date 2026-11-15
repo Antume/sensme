@@ -25,7 +25,10 @@ trap 'rm -rf "$work"' EXIT
 curl -fsSL "https://ziglang.org/download/${ZIG_VER}/zig-x86_64-linux-${ZIG_VER}.tar.xz" \
     | tar xJ -C "$work"
 ZIG="$work/zig-x86_64-linux-${ZIG_VER}/zig"
-CC="$ZIG cc -target $TARGET"
+# PIE is mandatory on Android 10+: a non-PIE (ET_EXEC) binary is rejected by
+# the loader with "has unexpected e_type: 2". Static PIE still has no runtime
+# dependencies, so the result stays distro-independent.
+CC="$ZIG cc -target $TARGET -fPIE"
 
 # static libmpg123 for the target
 curl -fsSL "https://downloads.sourceforge.net/project/mpg123/mpg123/${MPG_VER}/mpg123-${MPG_VER}.tar.bz2" \
@@ -40,7 +43,7 @@ make install >"$work/install.log" 2>&1
 export PKG_CONFIG_LIBDIR="$work/prefix/lib/pkgconfig"
 cp -r "$SRC" "$work/src"
 cd "$work/src"
-make STATIC=1 CC="$CC" LDFLAGS="-static -Wl,-s"
+make STATIC=1 CC="$CC" LDFLAGS="-static-pie -Wl,-s"
 
 BIN="sensme-${VERSION}-linux-aarch64"
 cp sensme "$OUTDIR/$BIN"

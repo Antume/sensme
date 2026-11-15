@@ -31,9 +31,16 @@ termux-setup-storage
 mkdir -p ~/bin
 cp ~/storage/downloads/sensme-0.1-linux-aarch64 ~/bin/sensme
 chmod +x ~/bin/sensme
-sensme
+~/bin/sensme
 ```
 
+Termux 的 PATH 不含 `~/bin`，所以用 `~/bin/sensme` 调用。想直接敲 `sensme`：
+
+```sh
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc && . ~/.bashrc
+```
+
+不要放在 `~/storage`、`/sdcard` 下运行：共享存储是 noexec，`chmod` 无效。
 源目录一般位于 `~/storage/shared/` 下；输出目录同样放在共享存储内，其他播放器
 才能读取。手机端分析较慢，数百首需要数分钟。
 
